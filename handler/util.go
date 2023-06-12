@@ -6,7 +6,15 @@ import (
 	"fmt"
 
 	"golang.org/x/exp/slog"
+
+	"github.com/kazamori/stripe/config"
 )
+
+var cfg config.Config
+
+func SetConfig(c config.Config) {
+	cfg = c
+}
 
 func prettyPrint(v any) {
 	var buf bytes.Buffer

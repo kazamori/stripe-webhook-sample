@@ -6,8 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/stripe/stripe-go/v74"
+	"golang.org/x/exp/slog"
 )
 
 func Webhook(w http.ResponseWriter, req *http.Request) {
@@ -45,10 +47,19 @@ func Webhook(w http.ResponseWriter, req *http.Request) {
 		prettyPrint(paymentIntent)
 		//		fmt.Printf("%+v\n", paymentIntent)
 
-		//
 		// turn on smart plug
-		//
-
+		if err := requestMakerEvent(cfg.IftttTurnOn); err != nil {
+			slog.Error("failed to trigger on ifttt", "err", err)
+		} else {
+			go func() {
+				<-time.After(3 * time.Second)
+				if err := requestMakerEvent(cfg.IftttTurnOff); err != nil {
+					slog.Error("failed to trigger off on ifttt", "err", err)
+				}
+				turnOn = false
+				slog.Info("completed trigger off")
+			}()
+		}
 	case "charge.succeeded":
 		fmt.Println("Charge was successfully!")
 

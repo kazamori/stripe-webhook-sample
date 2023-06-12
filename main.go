@@ -13,10 +13,11 @@ import (
 )
 
 func main() {
-	cfg := config.Stripe{}
+	cfg := config.Config{}
 	if err := env.Parse(&cfg); err != nil {
 		log.Fatalf("failed to set config: %s", err)
 	}
+	handler.SetConfig(cfg)
 
 	http.HandleFunc("/webhook", handler.Webhook)
 
